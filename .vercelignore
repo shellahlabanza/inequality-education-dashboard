@@ -1,0 +1,9 @@
+# Static site only: Vercel serves public/. Keep Python sources out so Vercel
+# doesn't detect a Python project and try to install/run it.
+*.py
+requirements.txt
+notebooks/
+data/
+streamlit_version/
+venv/
+__pycache__/
