@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supplementary EDA</title>
+<meta name="description" content="Group 6.1 (Labanza and Lontoc): UNDP education inequality, 2010 to 2021, with a predictive model that flags priority countries.">
+<style>
+:root{
+  --navy:#16324F; --blue:#0F6E8C; --red:#C23B3B; --amber:#E9A23B; --grey:#8D99AE; --ink:#1B2A41;
+  --muted:#51607A; --line:#DDE3EA; --bg:#F5F7FA; --card:#fff; --note:#EAF3F7; --good:#1E7B4F;
+  --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+h1,h2,h3{font-family:var(--serif);margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding:20px 16px 48px}
+.hero{background:var(--navy);color:#fff;border-radius:8px;padding:26px 30px;margin-bottom:16px}
+.hero .kicker{color:#9CC9DA;font-size:.92rem;margin-bottom:6px}
+.hero h1{font-size:clamp(1.5rem,3.2vw,2.1rem);line-height:1.2;margin-bottom:10px}
+.hero p{margin:0;color:#DCE6EE;font-size:1.03rem;max-width:64rem}
+.hero .audience{margin-top:12px;font-size:.9rem;color:#9CC9DA}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+aside{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;position:sticky;top:12px}
+@media(max-width:900px){aside{position:static}}
+aside h2{font-size:1.15rem;margin-bottom:2px}
+aside .cap{color:var(--muted);font-size:.85rem;margin:0 0 12px}
+.fl{font-weight:600;font-size:.86rem;margin:14px 0 6px;display:flex;justify-content:space-between}
+.fl output{color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:3px 10px;font-size:.8rem;cursor:pointer;font-family:inherit}
+.chip[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[role=tab]:focus-visible{outline:3px solid #9CC9DA;outline-offset:2px}
+input[type=text],select{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:inherit;font-size:.88rem}
+.btn{margin-top:14px;width:100%;border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:6px;padding:7px;font:inherit;cursor:pointer}
+.btn:hover{background:var(--blue);color:#fff}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--line);margin-bottom:14px}
+[role=tab]{border:0;background:none;padding:10px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+[role=tab][aria-selected=true]{color:var(--navy);border-bottom-color:var(--blue)}
+.panel{width:100%}
+.panel:not(.active){position:absolute;left:-12000px;top:0;visibility:hidden;height:0;overflow:hidden}
+.main{position:relative;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);border-radius:8px;padding:14px 16px}
+.kpi .label{font-size:.88rem;color:var(--muted)}
+.kpi .value{font-family:var(--serif);font-size:2.1rem;font-weight:700;line-height:1.15;margin:4px 0}
+.kpi .sub{font-size:.86rem;color:var(--muted)}
+.good{color:var(--good);font-weight:600}.bad{color:var(--red);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px;min-width:0}
+.qtitle{font-family:var(--serif);font-size:1.2rem;font-weight:700;margin:0}
+.qsub{color:var(--muted);font-size:.9rem;margin:2px 0 8px}
+.note{background:var(--note);border-left:5px solid var(--blue);border-radius:4px;padding:10px 14px;margin-top:6px;font-size:.95rem}
+.note b{color:var(--blue)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.chart{width:100%}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:#F0F4F8;color:var(--navy);position:sticky;top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:6px}
+details{margin-top:10px}summary{cursor:pointer;font-weight:600;color:var(--navy);padding:6px 0}
+.ctl{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+.ctl input[type=range]{max-width:300px}
+.pill{display:inline-block;font-size:.75rem;font-weight:700;border-radius:999px;padding:2px 9px}
+.pill.ok{background:#DDF2E7;color:var(--good)}.pill.warn{background:#FFF1D6;color:#8A5A00}.pill.no{background:#FBE0E0;color:var(--red)}.pill.man{background:#E6EAF0;color:var(--muted)}
+.req td{white-space:normal;vertical-align:top}
+.find{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.find div{border:1px solid var(--line);border-left:5px solid var(--navy);border-radius:6px;padding:10px 14px;background:#fff}
+.find b{font-family:var(--serif)}.find small{color:var(--muted)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.foot{color:var(--muted);font-size:.82rem;margin-top:24px}
+.err{background:#FBE0E0;border:1px solid var(--red);padding:16px;border-radius:8px;margin:20px}
+.dl{display:inline-block;margin-top:8px;border:1px solid var(--blue);color:var(--blue);padding:7px 14px;border-radius:6px;text-decoration:none;background:#fff;cursor:pointer;font:inherit}
+@media print{aside,.tabs{display:none}.panel:not(.active){position:static;visibility:visible;height:auto}}
+a.tablink{padding:10px 14px;font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px}
+a.tablink:hover{color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero"><div class="kicker">Supplementary material | Group 6.1 Labanza and Lontoc</div>
+  <h1>Exploratory data analysis from the notebook</h1>
+  <p>Supporting views from the EDA notebook (Sections 2, 6 and 7). They use the full dataset and are separate from the dashboard. <a href="index.html" style="color:#9CC9DA">&larr; Back to the dashboard</a></p></div>
+        <div class="tabs"><a class="tablink" href="index.html">← Dashboard</a><a class="tablink" href="index.html">Overview</a><a class="tablink" href="index.html">Where to act</a><a class="tablink" href="index.html">Priority countries (model)</a><a class="tablink" href="index.html">Plan &amp; data notes</a><a class="tablink" style="color:var(--navy);border-bottom-color:var(--blue)" href="eda.html" aria-current="page">EDA (notebook)</a></div>
+  <section id="p-eda">
+        <div class="card">
+          <p class="qtitle">EDA from the notebook (full dataset)</p>
+          <p class="qsub">Supporting views reproduced from notebook Sections 2 and 6 to 7. These always show all countries. They are separate from the dashboard and are not counted as its visuals.</p>
+        </div>
+        <div class="grid2">
+          <div class="card"><p class="qtitle">Distribution of inequality values</p><p class="qsub">Notebook 7.1d. 1,979 observed country-year values, class width 5.</p><div id="e-hist" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Boxplots by year</p><p class="qsub">Notebook 2.7. Outlier check.</p><div id="e-boxyear" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Boxplots by Human Development Group</p><p class="qsub">Notebook 7.3c. Low Q1 sits above Very High Q3.</p><div id="e-boxhdg" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Boxplots by UNDP region</p><p class="qsub">Notebook 7.3c.</p><div id="e-boxreg" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Mean vs median by year</p><p class="qsub">Notebook 7.2b. Mean above median means a right-skewed tail.</p><div id="e-central" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Spread by year</p><p class="qsub">Notebook 7.3a. Standard deviation and IQR.</p><div id="e-disp" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Correlation of time-based variables</p><p class="qsub">Notebook 6.5. Previous-year value is almost identical (r = 0.997).</p><div id="e-corr" class="chart"></div></div>
+          <div class="card"><p class="qtitle">Deciles, 2010 vs 2021</p><p class="qsub">Notebook 7.4a. The top deciles barely moved.</p><div id="e-dec" class="chart"></div></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><p class="qtitle">Biggest improvers, 2010 to 2021</p><p class="qsub" id="mvCap"></p><div id="e-improved"></div></div>
+          <div class="card"><p class="qtitle">Largest increases, 2010 to 2021</p><p class="qsub">Notebook 7.4c.</p><div id="e-worse"></div></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><p class="qtitle">Summary by Human Development Group</p><p class="qsub">Notebook 6.1, 7.2c, 7.3b.</p><div id="e-tab-hdg" class="scroll"></div></div>
+          <div class="card"><p class="qtitle">Summary by UNDP region</p><p class="qsub">Notebook 6.2, 7.2c, 7.3b.</p><div id="e-tab-reg" class="scroll"></div></div>
+        </div>
+      </section>
+</div>
+<script src="data.js"></script>
+<script src="plotly.min.js"></script>
+<script>
+"use strict";
+const D=window.DATA, HIGH=D.meta.high, SCORE_MAX=50;
+const NAVY="#16324F",BLUE="#0F6E8C",RED="#C23B3B",AMBER="#E9A23B",GREY="#8D99AE",INK="#1B2A41";
+const HDG_ORDER=["Low","Medium","High","Very High"], HDG_ALL=[...HDG_ORDER,"Unclassified"];
+const HDG_COLORS={Low:RED,Medium:AMBER,High:BLUE,"Very High":NAVY,Unclassified:GREY};
+const REGION_ORDER=["Sub-Saharan Africa","South Asia","Arab States","Latin America & Caribbean","East Asia & Pacific","Europe & Central Asia","Unclassified"];
+const SCALE=[[0,"#E3EEF4"],[.45,"#F1C75B"],[1,"#B3202F"]];
+const BASELINE="Baseline (group mean)";
+const CFG={responsive:true,displaylogo:false,topojsonURL:"topojson/",modeBarButtonsToRemove:["lasso2d","select2d"]};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:NaN;
+const f1=v=>Number(v).toFixed(1), f2=v=>Number(v).toFixed(2);
+
+const C=D.countries;const OBS=D.rows.map(([ci,y,v])=>({c:C[ci],y,v}));
+function layout(h,extra={}){return Object.assign({height:h,margin:{l:48,r:16,t:10,b:40},font:{size:13,color:INK},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"#fff",xaxis:{gridcolor:"#E6EAF0",zeroline:false},yaxis:{gridcolor:"#E6EAF0",zeroline:false},legend:{orientation:"h",y:1.12,x:0}},extra);}
+const plot=(id,data,lay)=>Plotly.react(id,data,lay,CFG);
+function table(headers,rows,numCols=[]){return '<table><thead><tr>'+headers.map((h,i)=>`<th class="${numCols.includes(i)?'n':''}">${esc(h)}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((c,i)=>`<td class="${numCols.includes(i)?'n':''}">${esc(c??'')}</td>`).join('')+'</tr>').join('')+'</tbody></table>';}
+/* ---------- EDA ---------- */
+function renderEda(){
+  const E=D.eda,yrs=Object.keys(E.by_year_central).map(Number);
+  plot('e-hist',[{type:'bar',x:E.freq.map(f=>f.bin),y:E.freq.map(f=>f.n),marker:{color:BLUE},text:E.freq.map(f=>f.pct+"%"),textposition:'outside',cliponaxis:false}],layout(320,{showlegend:false,xaxis:{title:"Score range",gridcolor:"#E6EAF0"},yaxis:{title:"Observations",gridcolor:"#E6EAF0"}}));
+  plot('e-boxyear',yrs.map(y=>({type:'box',name:String(y),y:OBS.filter(r=>r.y===y).map(r=>r.v),marker:{color:BLUE},boxpoints:'outliers'})),layout(320,{showlegend:false,yaxis:{title:"Inequality",gridcolor:"#E6EAF0"}}));
+  plot('e-boxhdg',HDG_ORDER.map(g=>({type:'box',name:g,y:OBS.filter(r=>r.c.hdg===g).map(r=>r.v),marker:{color:HDG_COLORS[g]}})),layout(320,{showlegend:false,yaxis:{title:"Inequality",gridcolor:"#E6EAF0"}}));
+  plot('e-boxreg',REGION_ORDER.map(g=>({type:'box',name:g.replace(" & ","<br>& ").replace("Sub-Saharan ","Sub-Saharan<br>"),y:OBS.filter(r=>r.c.region===g).map(r=>r.v),marker:{color:g==="Unclassified"?GREY:BLUE}})),layout(320,{showlegend:false,yaxis:{title:"Inequality",gridcolor:"#E6EAF0"},margin:{l:48,r:16,t:10,b:90}}));
+  plot('e-central',[{x:yrs,y:yrs.map(y=>E.by_year_central[y].mean),name:'Mean',mode:'lines+markers',line:{color:BLUE,width:3}},{x:yrs,y:yrs.map(y=>E.by_year_central[y].median),name:'Median',mode:'lines+markers',line:{color:AMBER,width:3}}],layout(320,{xaxis:{dtick:1,gridcolor:"#E6EAF0"},yaxis:{title:"Score",gridcolor:"#E6EAF0"}}));
+  plot('e-disp',[{x:yrs,y:yrs.map(y=>E.by_year_disp[y].std),name:'Std deviation',mode:'lines+markers',line:{color:RED,width:3}},{x:yrs,y:yrs.map(y=>E.by_year_disp[y].iqr),name:'IQR',mode:'lines+markers',line:{color:NAVY,width:3}}],layout(320,{xaxis:{dtick:1,gridcolor:"#E6EAF0"},yaxis:{title:"Score",gridcolor:"#E6EAF0"}}));
+  plot('e-corr',[{type:'heatmap',z:E.corr.z,x:E.corr.labels,y:E.corr.labels,zmin:-1,zmax:1,colorscale:'RdBu',reversescale:true,text:E.corr.z.map(r=>r.map(v=>v.toFixed(2))),texttemplate:"%{text}",hovertemplate:"%{y} vs %{x}: %{z:.3f}<extra></extra>"}],layout(320,{margin:{l:140,r:16,t:10,b:90},yaxis:{autorange:'reversed'}}));
+  plot('e-dec',[{type:'bar',name:'2010',x:E.deciles.map(d=>d.d),y:E.deciles.map(d=>d.y2010),marker:{color:GREY}},{type:'bar',name:'2021',x:E.deciles.map(d=>d.d),y:E.deciles.map(d=>d.y2021),marker:{color:BLUE}}],layout(320,{barmode:'group',yaxis:{title:"Score",gridcolor:"#E6EAF0"}}));
+  $('mvCap').textContent=`Notebook 7.4c. ${E.movers.n} countries observed in both years: ${E.movers.n_improved} improved, ${E.movers.n_worse} worsened, ${E.movers.n_same} unchanged.`;
+  const mv=a=>table(["Country","2010","2021","Change"],a.map(m=>[m.country,f1(m.y2010),f1(m.y2021),(m.change>=0?"+":"")+f1(m.change)]),[1,2,3]);
+  $('e-improved').innerHTML=mv(E.movers.improved);$('e-worse').innerHTML=mv(E.movers.worsened);
+  const st=(o,order)=>table(["Group","n","Mean","Median","Std","IQR","Min","Max"],order.filter(k=>o[k]).map(k=>[k,o[k].n,o[k].mean,o[k].median,o[k].std,o[k].iqr,o[k].min,o[k].max]),[1,2,3,4,5,6,7]);
+  $('e-tab-hdg').innerHTML=st(E.by_hdg,HDG_ALL);$('e-tab-reg').innerHTML=st(E.by_region,REGION_ORDER);
+}
+
+
+renderEda();
+</script>
+</body></html>

@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "outputDirectory": "public",
+  "buildCommand": null,
+  "headers": [
+    { "source": "/(.*)", "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }] }
+  ]
+}
